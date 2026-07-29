@@ -13,7 +13,7 @@ final class TestFile
 	 *     }>
 	 * } $data
 	 */
-	public static function create(array $data): mixed
+	public static function changeWithReference(array $data): mixed
 	{
 		if (!isset($data['results'][0])) {
 			return null;
@@ -21,6 +21,30 @@ final class TestFile
 		\PHPStan\dumpType($data['results']);
 		foreach ($data['results'] as &$result) {
 			unset($result['plate_crop_jpeg']);
+		}
+		\PHPStan\dumpType($data['results']);
+		\PHPStan\Testing\assertType('string', $data['results'][0]['plate']);
+
+		return null;
+	}
+
+	/**
+	 * @param array{
+	 *     results: list<array{
+	 *         plate: string,
+	 *         plate_crop_jpeg: string,
+	 *         confidence: number,
+	 *     }>
+	 * } $data
+	 */
+	public static function changeViaIndex(array $data): mixed
+	{
+		if (!isset($data['results'][0])) {
+			return null;
+		}
+		\PHPStan\dumpType($data['results']);
+		foreach ($data['results'] as $index => $result) {
+			unset($data['results'][$index]['plate_crop_jpeg']);
 		}
 		\PHPStan\dumpType($data['results']);
 		\PHPStan\Testing\assertType('string', $data['results'][0]['plate']);
