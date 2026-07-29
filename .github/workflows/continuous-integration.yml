@@ -1,0 +1,45 @@
+name: "Continuous Integration"
+
+on:
+  - push
+  - pull_request
+
+env:
+  COMPOSER_FLAGS: "--ansi --no-interaction --no-progress --prefer-dist --no-suggest"
+
+jobs:
+
+  static-analysis:
+    name: "Static analysis"
+    runs-on: "ubuntu-latest"
+    strategy:
+      matrix:
+        dependencies:
+          - "lowest"
+          - "highest"
+        php-version:
+          - "8.3"
+          - "8.4"
+          - "8.5"
+
+    steps:
+      - name: "Set up PHP"
+        uses: "shivammathur/setup-php@v2"
+        with:
+          coverage: "none"
+          php-version: "${{ matrix.php-version }}"
+          tools: "composer:v2"
+
+      - name: "Checkout"
+        uses: "actions/checkout@v4"
+
+      - name: "Install lowest dependencies"
+        if: ${{ matrix.dependencies == 'lowest' }}
+        run: "composer update --prefer-lowest ${{ env.COMPOSER_FLAGS }} ${{ matrix.composer-options }}"
+
+      - name: "Install highest dependencies"
+        if: ${{ matrix.dependencies == 'highest' }}
+        run: "composer update ${{ env.COMPOSER_FLAGS }} ${{ matrix.composer-options }}"
+
+      - name: "Run PHPStan"
+        run: "vendor/bin/phpstan analyse"
