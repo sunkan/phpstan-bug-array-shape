@@ -13,13 +13,12 @@ jobs:
     name: "Static analysis"
     runs-on: "ubuntu-latest"
     strategy:
+      fail-fast: false
       matrix:
         dependencies:
           - "lowest"
           - "highest"
         php-version:
-          - "8.3"
-          - "8.4"
           - "8.5"
 
     steps:
